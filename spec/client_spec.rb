@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Dencity::Client do
   before(:all) do
-    @options = {host_name: 'http://localhost:3000/'}
+    @options = { host_name: 'http://localhost:3000/' }
   end
 
   it 'should connect to host' do
