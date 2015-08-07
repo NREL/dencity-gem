@@ -56,8 +56,16 @@ else
   #puts analyses
 end
 
-puts '********* AUTHENTICATE ************'
-d.login('nicholas.long@nrel.gov','testing123')
+puts '********* LOGIN ************'
+begin
+  login = d.login('nicholas.long@nrel.gov','testing123')
+rescue StandardError => e
+  printf "%-40s %s\n", "Login", "FAIL"
+  puts e
+else
+  printf "%-40s %s\n", "Login", "SUCCESS"
+  puts login
+end
 
 puts '********* Upload ANALYSIS **********'
 
@@ -88,3 +96,5 @@ else
   #puts "@structure var: #{d.structure}"
 end
 
+puts '******* LOGOUT *******'
+d.logout

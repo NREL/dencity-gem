@@ -27,11 +27,10 @@ module Dencity
       defaults = {
         username: nil,
         password: nil,
-        access_token: nil,
+        #access_token: nil,
         host_name: 'https://dencity.org/',
-        #endpoint_base_url: 'api/',
         user_agent: "DEnCity Ruby Client #{Dencity::VERSION}".freeze,
-        cookie: nil,
+        #cookie: nil,
         logging: nil
       }
       @options = Hashie::Mash.new(defaults.merge(options))
@@ -53,16 +52,17 @@ module Dencity
       @options.password = password
 
       @connection = connection
-      puts @connection.inspect
-      @connection
+      post('api/login')
 
     end
 
     def logout
-      response = post('user/logout')
-      @cookie = nil
+
+      #@cookie = nil
+      @options.username = nil
+      @options.password = nil
       @connection = nil
-      response
+
     end
 
     def connected?
@@ -90,8 +90,8 @@ module Dencity
       { headers: {
         'Accept' => 'application/json; charset=utf-8',
         'User-Agent' => @options.user_agent,
-        'Cookie' => @options.cookie,
-        'X-CSRF-Token' => @options.access_token
+        #'Cookie' => @options.cookie,
+        #'X-CSRF-Token' => @options.access_token
       }.reject { |_k, v| v.nil? },
         ssl: { verify: false },
         url: @options.host_name
