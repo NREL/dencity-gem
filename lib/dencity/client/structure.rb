@@ -1,36 +1,84 @@
 module Dencity
   # Analysis methods
   module Structure
-
-    # load structure from json file
-    def load_structure(path)
-      # TODO: check that file exists
-      File.read(path)
+    # return @structure
+    def structure
+      return @structure
     end
+
+    # structure_loaded? returns true if @structure.structure isn't empty
+    def structure_loaded?
+      return @structure.structure.empty? ? false: true
+    end
+
+    # load structure from json file into a mash
+    def load_structure(path)
+      if File.exists?(path)
+        json_data = File.read(path)
+        load_structure_json(json_data)
+      end
+    end
+
+    # load structure from raw json
+    def load_structure_json(json_data)
+      @structure = Hashie::Mash.new(MultiJson.load(json_data))
+    end
+
+    # set structure user_defined_id
+    def structure_set_user_defined_id(user_defined_id)
+      @structure.user_defined_id = user_defined_id
+    end
+
+    # set structure analysis_id
+    def structure_set_analysis_id(analysis_id)
+      @structure.analysis_id = analysis_id
+    end
+
     # upload structure to DEnCity
-    # options are in json, analysis_id is not
-    def upload_structure(options, analysis_id=nil)
-      new_options = format_structure(options, analysis_id)
-      post('api/structure', new_options)
+    # expects @structure.structure to not be empty unless a path is passed in
+    # will use @analysis.analysis.id if nothing is passed in & @structure.analysis_id is not defined
+    def upload_structure(user_defined_id=nil, analysis_id=nil, path=nil)
+
+      if path
+        load_structure(path)
+      end
+      raise 'You must load a valid structure before uploading' if !structure_loaded?
+
+      # add/modify user_defined_id
+      structure_set_user_defined_id(user_defined_id) if user_defined_id
+
+      # set analysis_id in preference order: passed-in analysis_id, analysis_id from @analysis var, nil
+      a_id =  (!analysis_id && @analysis.analysis.id) ? @analysis.analysis.id : analysis_id
+      structure_set_analysis_id(a_id)
+
+      # format and post
+      post('api/structure', format_structure)
     end
 
     private
 
-    # convert to ruby, structure to name/value pair
-    def format_structure(options, analysis_id)
-      # convert to ruby hash
-      opts_hash = MultiJson.load(options)
-      opts_hash['analysis_id'] = analysis_id unless analysis_id.nil?
-      # generate name/value pairs
-      new_structure = []
-      opts_hash['structure'].each do |k, v|
-        new_structure << {name: k, value: v}
+    # formats structure parameters for posting
+    def format_structure
+
+      # generate name/value pairs for structure metadata
+      formatted_meta = []
+      @structure.structure.each do |k, v|
+        formatted_meta << {name: k, value: v}
       end
-      # replace old structure with new
-      opts_hash.delete('structure')
-      opts_hash['structure'] = new_structure
+      new_struct = Hashie::Mash.new
+      new_struct.metadata = formatted_meta
+
+      # TODO: what if it's already in the structure hash?
+      # add user_defined_id to structure
+      new_struct.user_defined_id = @structure.user_defined_id
+      new_struct.analysis_id = @structure.analysis_id
+
+      data_hash = Hashie::Mash.new
+      data_hash.structure = new_struct
+      data_hash.measure_instances = @structure.measure_instances ? @structure.measure_instances : []
+
       # convert back to json
-      options = MultiJson.dump(opts_hash)
+      MultiJson.dump(data_hash)
     end
 
   end

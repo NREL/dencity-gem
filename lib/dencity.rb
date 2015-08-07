@@ -1,7 +1,7 @@
 require 'dencity/version'
-require 'ostruct'
 require_relative 'dencity/client'
 require_relative 'dencity/response'
+require_relative 'dencity/error'
 
 # Main module
 module Dencity
