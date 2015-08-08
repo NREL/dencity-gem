@@ -52,7 +52,10 @@ module Dencity
       structure_set_analysis_id(a_id)
 
       # format and post
-      post('api/structure', format_structure)
+      response = post('api/structure', format_structure)
+      # set structure.id after upload
+      @structure.structure.id = response['id'] if response['id']
+      response
     end
 
     private

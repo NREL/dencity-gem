@@ -16,7 +16,7 @@ rescue StandardError => e
 else
   printf "%-40s %s\n", "Search", "SUCCESS"
 end
-puts "RESULTS: #{results}"
+# puts "RESULTS: #{results}"
 # puts "Number of results: #{results.results.size}"
 
 puts '********  GET ANALYSIS BY NAME & USER_ID *********'
@@ -96,5 +96,28 @@ else
   #puts "@structure var: #{d.structure}"
 end
 
+puts '******* Upload RELATED FILE *******'
+begin
+  response = d.upload_file('./data/analysis/related_file/testing.txt', 'testing-file.txt')
+rescue StandardError => e
+  printf "%-40s %s\n", "Upload RelatedFile", "FAIL"
+  puts e
+else
+  printf "%-40s %s\n", "Upload RelatedFile", "SUCCESS"
+  puts response
+end
+
+puts '******* Delete a RELATED FILE *******'
+begin
+  response = d.delete_file('testing-file.txt')
+rescue StandardError => e
+  printf "%-40s %s\n", "Delete File", "FAIL"
+  puts e
+else
+  printf "%-40s %s\n", "Delete File", "SUCCESS"
+  puts response
+end
+
 puts '******* LOGOUT *******'
 d.logout
+

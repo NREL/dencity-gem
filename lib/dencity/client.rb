@@ -6,6 +6,7 @@ require_relative 'request'
 require_relative 'client/search'
 require_relative 'client/analysis'
 require_relative 'client/structure'
+require_relative 'client/related_file'
 require_relative '../faraday/raise_http_exception'
 
 module Dencity
@@ -20,6 +21,7 @@ module Dencity
     include Dencity::Search
     include Dencity::Analysis
     include Dencity::Structure
+    include Dencity::RelatedFile
 
     # connect to DEnCity (unauthenticated)
     def initialize(options)

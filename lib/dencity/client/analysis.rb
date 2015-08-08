@@ -54,8 +54,9 @@ module Dencity
         load_analysis_json(path)
       end
       response = post('api/analysis', MultiJson.dump(@analysis))
-      # set analysis id
+      # set analysis.id after upload
       @analysis.analysis.id = response['analysis']['id'] if response['analysis']['id']
+      response
     end
 
   end
