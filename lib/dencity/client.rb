@@ -29,10 +29,10 @@ module Dencity
       defaults = {
         username: nil,
         password: nil,
-        #access_token: nil,
+        # access_token: nil,
         host_name: 'https://dencity.org/',
         user_agent: "DEnCity Ruby Client #{Dencity::VERSION}".freeze,
-        #cookie: nil,
+        # cookie: nil,
         logging: nil
       }
       @options = Hashie::Mash.new(defaults.merge(options))
@@ -40,31 +40,26 @@ module Dencity
       # connection to site
       @connection = connection
 
-      #initialize analysis and structure to empty hashes
+      # initialize analysis and structure to empty hashes
       initialize_analysis
       initialize_structure
-
     end
 
     # for authenticated actions
     def login(username, password)
-
       # TODO: get these values from ENV or config.yml
       @options.username = username
       @options.password = password
 
       @connection = connection
       post('api/login')
-
     end
 
     def logout
-
-      #@cookie = nil
+      # @cookie = nil
       @options.username = nil
       @options.password = nil
       @connection = nil
-
     end
 
     def connected?
@@ -79,7 +74,7 @@ module Dencity
       Faraday::Connection.new(options) do |c|
         c.use FaradayMiddleware::Mashify unless raw
         # basic auth
-        puts c.basic_auth(@options.username, @options.password) unless @options.username.nil? or @options.password.nil?
+        puts c.basic_auth(@options.username, @options.password) unless @options.username.nil? || @options.password.nil?
         c.use FaradayMiddleware::RaiseHttpException
         c.response :json, content_type: /\bjson$/
         c.response :logger if @logging
@@ -88,18 +83,16 @@ module Dencity
     end
 
     def set_options
-
       { headers: {
         'Accept' => 'application/json; charset=utf-8',
         'User-Agent' => @options.user_agent,
-        #'Cookie' => @options.cookie,
-        #'X-CSRF-Token' => @options.access_token
+        # 'Cookie' => @options.cookie,
+        # 'X-CSRF-Token' => @options.access_token
       }.reject { |_k, v| v.nil? },
         ssl: { verify: false },
         url: @options.host_name
       }
     end
-
 
     # initialize analysis variable
     def initialize_analysis
@@ -121,6 +114,5 @@ module Dencity
       @structure.structure = Hashie::Mash.new
       @structure.measure_instances = Hashie::Mash.new
     end
-
   end
 end

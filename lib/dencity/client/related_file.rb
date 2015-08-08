@@ -1,12 +1,11 @@
 module Dencity
   # RelatedFile methods
   module RelatedFile
-
     # upload a file
     # if filename is nil, will use filename in path
     # if structure_id is nil, will use @structure.id
     # TODO: would we ever want to pass-in filedata in memory (no real file?)
-    def upload_file(path, file_name=nil, structure_id=nil)
+    def upload_file(path, file_name = nil, structure_id = nil)
       s_id = (!structure_id && @structure.structure.id) ? @structure.structure.id : structure_id
 
       file = File.open(path, 'rb')
@@ -27,7 +26,7 @@ module Dencity
 
     # delete an uploaded file
     # if structure_id is nil, will use @structure.id
-    def delete_file(file_name, structure_id=nil)
+    def delete_file(file_name, structure_id = nil)
       data = Hashie::Mash.new
       s_id = (!structure_id && @structure.structure.id) ? @structure.structure.id : structure_id
       data.structure_id = s_id
@@ -35,6 +34,5 @@ module Dencity
 
       post('api/remove_file', MultiJson.dump(data))
     end
-
   end
 end

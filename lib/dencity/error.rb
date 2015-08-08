@@ -15,5 +15,4 @@ module Dencity
 
   # For 500's
   class InternalServerError < Error; end
-
 end

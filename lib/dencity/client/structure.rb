@@ -8,15 +8,14 @@ module Dencity
 
     # structure_loaded? returns true if @structure.structure isn't empty
     def structure_loaded?
-      return @structure.structure.empty? ? false: true
+      return @structure.structure.empty? ? false : true
     end
 
     # load structure from json file into a mash
     def load_structure(path)
-      if File.exists?(path)
-        json_data = File.read(path)
-        load_structure_json(json_data)
-      end
+      return unless File.exist?(path)
+      json_data = File.read(path)
+      load_structure_json(json_data)
     end
 
     # load structure from raw json
@@ -37,12 +36,11 @@ module Dencity
     # upload structure to DEnCity
     # expects @structure.structure to not be empty unless a path is passed in
     # will use @analysis.analysis.id if nothing is passed in & @structure.analysis_id is not defined
-    def upload_structure(user_defined_id=nil, analysis_id=nil, path=nil)
-
+    def upload_structure(user_defined_id = nil, analysis_id = nil, path = nil)
       if path
         load_structure(path)
       end
-      raise 'You must load a valid structure before uploading' if !structure_loaded?
+      fail 'You must load a valid structure before uploading' unless structure_loaded?
 
       # add/modify user_defined_id
       structure_set_user_defined_id(user_defined_id) if user_defined_id
@@ -62,11 +60,10 @@ module Dencity
 
     # formats structure parameters for posting
     def format_structure
-
       # generate name/value pairs for structure metadata
       formatted_meta = []
       @structure.structure.each do |k, v|
-        formatted_meta << {name: k, value: v}
+        formatted_meta << { name: k, value: v }
       end
       new_struct = Hashie::Mash.new
       new_struct.metadata = formatted_meta
@@ -83,6 +80,5 @@ module Dencity
       # convert back to json
       MultiJson.dump(data_hash)
     end
-
   end
 end

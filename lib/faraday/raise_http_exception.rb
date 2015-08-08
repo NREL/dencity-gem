@@ -9,15 +9,15 @@ module FaradayMiddleware
       @app.call(env).on_complete do |response|
         case response[:status].to_i
           when 400
-            raise Dencity::BadRequest, error_message_400(response)
+            fail Dencity::BadRequest, error_message_400(response)
           when 401
-            raise Dencity::Unauthorized, error_message_400(response)
+            fail Dencity::Unauthorized, error_message_400(response)
           when 404
-            raise Dencity::NotFound, error_message_400(response)
+            fail Dencity::NotFound, error_message_400(response)
           when 406
-            raise Dencity::NotAcceptable, error_message_400(response)
+            fail Dencity::NotAcceptable, error_message_400(response)
           when 500
-            raise Dencity::InternalServerError, error_message_500(response, "Internal Server Error.")
+            fail Dencity::InternalServerError, error_message_500(response, 'Internal Server Error.')
         end
       end
     end
@@ -30,17 +30,16 @@ module FaradayMiddleware
     private
 
     def error_message_400(response)
-      "#{response[:method].to_s.upcase} #{response[:url].to_s}: #{response[:status]} #{error_body(response[:body])}"
+      "#{response[:method].to_s.upcase} #{response[:url]}: #{response[:status]} #{error_body(response[:body])}"
     end
 
     def error_body(body)
-      if not body.nil? and not body.empty? and body.kind_of?(String)
-        body = ::MultiJson.load(body)
-      end
+      return unless !body.nil? && !body.empty? && body.is_a?(String)
+      body = ::MultiJson.load(body)
     end
 
-    def error_message_500(response, body=nil)
-      "#{response[:method].to_s.upcase} #{response[:url].to_s}: #{[response[:status].to_s + ':', body].compact.join(' ')}"
+    def error_message_500(response, body = nil)
+      "#{response[:method].to_s.upcase} #{response[:url]}: #{[response[:status].to_s + ':', body].compact.join(' ')}"
     end
   end
 end

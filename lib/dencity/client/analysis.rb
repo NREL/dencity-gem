@@ -8,7 +8,7 @@ module Dencity
 
     # analysis_loaded returns true if @analysis.analysis isn't empty
     def analysis_loaded?
-      return @analysis.analysis.empty? ? false: true
+      return @analysis.analysis.empty? ? false : true
     end
 
     # set user_defined_id
@@ -34,10 +34,9 @@ module Dencity
     # load analysis from JSON file
     # use this method to do some processing on analysis params before upload
     def load_analysis(path)
-      if File.exists?(path)
-        json_data = File.read(path)
-        load_analysis_json(json_data)
-      end
+      return unless File.exist?(path)
+      json_data = File.read(path)
+      load_analysis_json(json_data)
     end
 
     # load analysis from raw JSON
@@ -47,9 +46,9 @@ module Dencity
 
     # upload analysis
     # returns analysis_id
-    def upload_analysis(path=nil)
+    def upload_analysis(path = nil)
       if path.nil?
-        raise 'nothing to upload: analysis is empty' if !analysis_loaded?
+        fail 'nothing to upload: analysis is empty' unless analysis_loaded?
       else
         load_analysis_json(path)
       end
@@ -58,6 +57,5 @@ module Dencity
       @analysis.analysis.id = response['analysis']['id'] if response['analysis']['id']
       response
     end
-
   end
 end
