@@ -69,7 +69,7 @@ end
 
 puts '********* Upload ANALYSIS **********'
 
-d.load_analysis('./data/analysis/analysis_test.json')
+d.load_analysis('./spec/data/analysis.json')
 puts "ANALYSIS LOADED? #{d.analysis_loaded?}"
 begin
   analysis_response = d.upload_analysis
@@ -83,7 +83,7 @@ else
 end
 
 puts '********* Upload STRUCTURE *********'
-d.load_structure('./data/analysis/data_points/data_point_test.json')
+d.load_structure('./spec/data/structure.json')
 puts "STRUCTURE LOADED? #{d.structure_loaded?}"
 begin
   structure_response = d.upload_structure('test_user_id1')
@@ -92,13 +92,13 @@ rescue StandardError => e
   puts e
 else
   printf "%-40s %s\n", 'Upload Structure', 'SUCCESS'
-  puts structure_response
+  # puts structure_response
   # puts "@structure var: #{d.structure}"
 end
 
 puts '******* Upload RELATED FILE *******'
 begin
-  response = d.upload_file('./data/analysis/related_file/testing.txt', 'testing-file.txt')
+  response = d.upload_file('./spec/data/related_file.txt', 'test-related-file.txt')
 rescue StandardError => e
   printf "%-40s %s\n", 'Upload RelatedFile', 'FAIL'
   puts e
@@ -109,7 +109,7 @@ end
 
 puts '******* Delete a RELATED FILE *******'
 begin
-  response = d.delete_file('testing-file.txt')
+  response = d.delete_file('test-related-file.txt')
 rescue StandardError => e
   printf "%-40s %s\n", 'Delete File', 'FAIL'
   puts e

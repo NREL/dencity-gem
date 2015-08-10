@@ -1,0 +1,21 @@
+{
+  "measure_instances": [
+    {
+      "uri": "https://bcl.nrel.gov",
+      "id": "1acb4051-d7a9-4439-80d1-64a03bf7a3cf",
+      "version_id": "56e2b7fa-6115-4eab-b10b-d42a7980545c",
+      "arguments": {
+        "geometry": "TEST",
+        "building_name": "TEST"
+      }
+    }
+  ],
+  "structure": {
+    "additional_fuel_cooling_eui": 0,
+    "district_cooling_generators_eui": 0,
+    "total_electricity_end_use": 0,
+    "total_natural_gas_end_use": 0,
+    "total_site_eui": 21000,
+    "total_source_eui": 75000
+  }
+}

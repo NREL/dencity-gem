@@ -36,7 +36,7 @@ module Dencity
         logging: nil
       }
       @options = Hashie::Mash.new(defaults.merge(options))
-      puts "CONNECTING TO: #{@options.host_name}"
+      puts "CONNECTING TO: #{@options.host_name}, USER: #{@options.username}"
       # connection to site
       @connection = connection
 

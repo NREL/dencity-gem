@@ -1,0 +1,57 @@
+{
+    "analysis": {
+        "description": "test",
+        "display_name": "testing",
+        "name": "testing",
+        "user_defined_id": "117675c0-dfb3-490e-bce7-129f105a9561",
+        "user_created_date": "2015-07-24T21:39:44Z",
+        "analysis_types": [
+            "lhs",
+            "batch_run"
+        ],
+        "analysis_information": {
+            "number_of_samples": 100,
+            "sample_method": "all_variables",
+            "objective_functions": [
+                "standard_report_legacy.total_natural_gas",
+                "standard_report_legacy.total_electricity",
+                "standard_report_legacy.time_setpoint_not_met_during_occupied_cooling",
+                "standard_report_legacy.time_setpoint_not_met_during_occupied_heating"
+            ]
+        }
+    },
+    "measure_definitions": [
+        {
+            "id": "1acb4051-d7a9-4439-80d1-64a03bf7a3cf",
+            "version_id": "56e2b7fa-6115-4eab-b10b-d42a7980545c",
+            "name": "ChooseGeometry",
+            "display_name": "Choose Geometry",
+            "type": "RubyMeasure",
+            "modeler_description": "test",
+            "description": "test",
+            "arguments": [
+                {
+                    "display_name": "New building name",
+                    "display_name_short": "New building name",
+                    "name": "building_name",
+                    "data_type": "string",
+                    "default_value": null,
+                    "description": "",
+                    "display_units": "",
+                    "units": ""
+                },
+                {
+                    "display_name": "Choose Geometry to Import",
+                    "display_name_short": "Choose Geometry to Import",
+                    "name": "geometry",
+                    "default_value": null,
+                    "data_type": "string",
+                    "description": "",
+                    "display_units": null,
+                    "units": ""
+                }
+            ]
+        }
+    ]
+}
+
