@@ -9,7 +9,7 @@ filters << { name: 'building_type', value: ['Community Center'], operator: 'in' 
 return_only = ['related_files']
 page = 0 # pages are 0-based
 begin
-  results = d.search(nil, [], page)
+  results = d.search(filters, return_only, page)
 rescue StandardError => e
   printf "%-40s %s\n", 'Search', 'FAIL'
   puts e
@@ -17,7 +17,8 @@ else
   printf "%-40s %s\n", 'Search', 'SUCCESS'
 end
 # puts "RESULTS: #{results}"
-# puts "Number of results: #{results.results.size}"
+puts "Total number of pages in results set: #{results.total_pages}"
+puts "Number of results: #{results.results.size}"
 
 puts '********  GET ANALYSIS BY NAME & USER_ID *********'
 begin
