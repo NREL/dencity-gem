@@ -30,8 +30,10 @@ d = Dencity.connect
 ```
 
 On a different host (for development purposes):
+
 ```ruby
 d = Dencity.connect({host_name: <host_name>})
+```
 
 With authentication:
 ```ruby
