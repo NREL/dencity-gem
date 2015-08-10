@@ -23,7 +23,7 @@ Or install it yourself as:
 
 ### Connect to DEnCity
 
-Without authenticating:
+Without authentication:
 
 ```ruby
 d = Dencity.connect
