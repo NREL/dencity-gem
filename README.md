@@ -42,7 +42,7 @@ d = Dencity.connect({username: <username>, password: <password>})
 
 To authenticate an existing connection:
 ```ruby
-d = Dencity.login(<username>, <password>)
+d.login(<username>, <password>)
 ```
 
 ### Search
@@ -74,7 +74,7 @@ results = d.search(filters, return_only, page)
 ```
 
 ### Retrieve an Analysis
-There are two methods of retrieving an analysis:  by id, or by name + userID.
+There are two methods of retrieving an analysis:  by ID, or by name + userID.
 
 Retrieve an analysis by ID:
 ```ruby
@@ -84,15 +84,15 @@ Retrieve by analysis name and userID:
 ```ruby
 analysis = d.retrieve_analysis(<analysis_name>, <user_id>)
 ```
-You have access to your own user_id from the response object returned once you login to DEnCity, or from your account page on dencity.org.
+You have access to your own user_id from the response object returned once you login to DEnCity, or from your account page on DEnCity.org.
 
 ### Upload an Analysis
-First load an analysis from a json file, then upload to DEnCity.
+First load an analysis from a json file, then upload to DEnCity.org.
 ```ruby
 d.load_analysis(<json_file_path>)
 analysis_response = d.upload_analysis
 ```
-To catch the response and ensure that the analysis was uploaded to DEnCity correctly, you may want to use a begin-end block:
+To catch the response and ensure that the analysis was uploaded to DEnCity.org correctly, you may want to use a begin-end block:
 ```ruby
 d.load_analysis(<json_file_path>)
 begin
@@ -105,7 +105,7 @@ else
   puts analysis_response
 end
 ```
-If you do not need to modify the analysis before upload, you can pass in the .json file path directly:
+If you do not need to modify the analysis before upload, you can pass in the JSON file path directly:
 ```ruby
 d.upload_analysis(<json_file_path>)
 ```
@@ -118,7 +118,7 @@ structure_response = d.upload_structure(<user_defined_id>, <analysis_id>)
 ```
 If no analysis_id is specified in the *upload_structure* call, the gem will attempt to use the analysis_id stored in the @analysis client variable (which is set automatically by a previous analysis upload).
 
-If you do not need to modify the structure before upload, you can pass in the path to the .json file directly:
+If you do not need to modify the structure before upload, you can pass in the path to the JSON file directly:
 ```ruby
 structure_response = d.upload_structure(<user_defined_id>, <analysis_id>, <structure_file_path>)
 ```
