@@ -1,7 +1,7 @@
 require 'dencity'
 
 d = Dencity.connect(host_name: 'http://localhost:3000/')
-
+=begin
 puts '****** SEARCH ********'
 filters = []
 filters << { name: 'building_area', value: 2737.26, operator: 'lt' }
@@ -56,6 +56,7 @@ begin
    printf "%-40s %s\n", 'Get Analyses', 'SUCCESS'
   # puts analyses
 end
+=end
 
 puts '********* LOGIN ************'
 begin
@@ -70,36 +71,34 @@ end
 
 puts '********* Upload ANALYSIS **********'
 
-d.load_analysis('./spec/data/analysis.json')
-puts "ANALYSIS LOADED? #{d.analysis_loaded?}"
+analysis = d.load_analysis('./spec/data/analysis.json')
 begin
-  analysis_response = d.upload_analysis
+  a_response = analysis.push
 rescue StandardError => e
   printf "%-40s %s\n", 'Upload Analysis', 'FAIL'
   puts e
 else
   printf "%-40s %s\n", 'Upload Analysis', 'SUCCESS'
-  puts analysis_response
-  # puts "@analysis var: #{d.analysis}"
+  puts a_response
 end
 
 puts '********* Upload STRUCTURE *********'
-d.load_structure('./spec/data/structure.json')
-puts "STRUCTURE LOADED? #{d.structure_loaded?}"
+structure = d.load_structure(analysis.analysis.id, 'testing!', './spec/data/structure.json')
+puts "STRUCTURE: #{structure}"
 begin
-  structure_response = d.upload_structure('test_user_id1')
+s_response = structure.push
 rescue StandardError => e
   printf "%-40s %s\n", 'Upload Structure', 'FAIL'
   puts e
 else
   printf "%-40s %s\n", 'Upload Structure', 'SUCCESS'
-  # puts structure_response
-  # puts "@structure var: #{d.structure}"
+  puts s_response
 end
+
 
 puts '******* Upload RELATED FILE *******'
 begin
-  response = d.upload_file('./spec/data/related_file.txt', 'test-related-file.txt')
+  response = d.upload_file('./spec/data/related_file.txt', 'test-related-file.txt', structure.structure.id)
 rescue StandardError => e
   printf "%-40s %s\n", 'Upload RelatedFile', 'FAIL'
   puts e
@@ -110,7 +109,7 @@ end
 
 puts '******* Delete a RELATED FILE *******'
 begin
-  response = d.delete_file('test-related-file.txt')
+  response = d.delete_file('test-related-file.txt', structure.structure.id)
 rescue StandardError => e
   printf "%-40s %s\n", 'Delete File', 'FAIL'
   puts e
@@ -121,3 +120,4 @@ end
 
 puts '******* LOGOUT *******'
 d.logout
+

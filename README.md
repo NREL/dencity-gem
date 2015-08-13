@@ -109,6 +109,8 @@ If you do not need to modify the analysis before upload, you can pass in the JSO
 ```ruby
 d.upload_analysis(<json_file_path>)
 ```
+When uploading an analysis, the combination of user_id and user_defined_id will be checked.
+If an analysis with the same user_id and user_defined_id already exists on DEnCity.org, it will be updated; otherwise, a new analysis will be created.
 
 ### Upload a Structure
 To upload a structure, you will need an analysis_id.  You can also specify a user_defined_id to identify your structure for future retrieving.
@@ -122,6 +124,9 @@ If you do not need to modify the structure before upload, you can pass in the pa
 ```ruby
 structure_response = d.upload_structure(<user_defined_id>, <analysis_id>, <structure_file_path>)
 ```
+When uploading a structure, the combination of user_id and user_defined_id will be checked.
+If a structure with the same user_id and user_defined_id already exists on DEnCity.org, it will be updated; otherwise, a new structure will be created.
+
 
 ### Upload a file
 Files can be attached to an uploaded structure.  You will need to pass in the filepath as well as the desired filename on DEnCity.org.  If no filename is specified, the file's current name will be used.

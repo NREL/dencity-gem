@@ -1,8 +1,5 @@
-require 'multi_json'
-require 'hashie'
-require 'faraday'
-require 'faraday_middleware'
 require_relative 'request'
+
 require_relative 'client/search'
 require_relative 'client/analysis'
 require_relative 'client/structure'
@@ -15,12 +12,10 @@ module Dencity
     # connection options
     attr_accessor :options
     attr_accessor :analysis
-    attr_accessor :structure
+    attr_accessor :structures
 
     include Request
     include Dencity::Search
-    include Dencity::Analysis
-    include Dencity::Structure
     include Dencity::RelatedFile
 
     # connect to DEnCity (unauthenticated)
@@ -38,11 +33,16 @@ module Dencity
       @options = Hashie::Mash.new(defaults.merge(options))
       puts "CONNECTING TO: #{@options.host_name}, USER: #{@options.username}"
       # connection to site
-      @connection = connection
+      @connection = connect
 
-      # initialize analysis and structure to empty hashes
+      @default_number_threads = 4
+
+      # initialize analysis and structures
       initialize_analysis
-      initialize_structure
+      # array of structures
+      @structures = []
+      @analysis = nil
+
     end
 
     # for authenticated actions
@@ -51,7 +51,7 @@ module Dencity
       @options.username = username
       @options.password = password
 
-      @connection = connection
+      @connection = connect
       post('api/login')
     end
 
@@ -66,9 +66,28 @@ module Dencity
       @connection != nil
     end
 
+    # load structure
+    def load_structure(analysis_id=nil, user_defined_id=nil, path=nil)
+      @structures << Dencity::Structure.new(analysis_id, user_defined_id, path, @connection)
+      @structures.last
+    end
+
+    # bulk upload structures
+    def bulk_upload(number_of_threads=@default_number_threads)
+      Parallel.each(@structures, number_of_threads: number_of_threads) do |structure|
+        structure.push
+      end
+    end
+
+    # load analysis
+    # this function is needed to pass @connection at least
+    def load_analysis(path=nil)
+      @analysis = Dencity::Analysis.new(path, @connection)
+    end
+
     private
 
-    def connection(raw = false)
+    def connect(raw = false)
       options = set_options
 
       Faraday::Connection.new(options) do |c|
@@ -104,15 +123,38 @@ module Dencity
       @analysis.measure_definitions = Hashie::Mash.new
     end
 
-    # initialize structure variable
-    def initialize_structure
-      # structures hash contains: 1)structure from json file (not in name/value pairs),
-      # 2) measure_instances, 3) analysis_id, and 4) user_defined_id
-      @structure = Hashie::Mash.new
-      @structure.analysis_id = nil
-      @structure.user_defined_id = nil
-      @structure.structure = Hashie::Mash.new
-      @structure.measure_instances = Hashie::Mash.new
-    end
   end
 end
+
+=begin
+
+d = Dencity::Client.new
+d.structure.from_json(a_json)
+
+d.structure = {Soemthigntsutelkjasdflkjasldfj}
+d.structure.anlaysis_id = "something else"
+d.structure.push
+
+
+
+
+s = d.add_structure_from_file(a)
+s.push
+s = d.add_structure_from_file(b)
+
+
+
+d.structures[8] = "lasdkjflaskdjf"
+
+d.structures.each do |s|
+  s.analysis_id = 'alskdjf'
+end
+
+
+d.bulk_upload_structures
+
+#
+d.structures.bulk_upload
+
+=end
+
