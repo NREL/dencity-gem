@@ -1,14 +1,13 @@
 module Dencity
   # Analysis methods
   class Analysis
-
     include Request
 
     attr_accessor :analysis
     attr_accessor :measure_definitions
 
     # initialize
-    def initialize(path=nil, connection)
+    def initialize(path = nil, connection)
       # for analysis, user_defined_id is created in @analysis (not a separate variable)
       @analysis = Hashie::Mash.new
       @measure_definitions = Hashie::Mash.new
@@ -21,7 +20,6 @@ module Dencity
       end
 
       @upload_retries = nil
-
     end
 
     # get analysis by id
@@ -53,23 +51,6 @@ module Dencity
       @measure_definitions = temp.measure_definitions ? temp.measure_definitions : Hashie::Mash.new
     end
 
-=begin
-    # TODO: this method should be removed
-    # upload analysis
-    # returns analysis_id
-    def upload_analysis(path = nil)
-      if path.nil?
-        fail 'nothing to upload: analysis is empty' unless analysis_loaded?
-      else
-        load_from_file(path)
-      end
-      response = post('api/analysis', MultiJson.dump(@analysis))
-      # set analysis.id after upload
-      @analysis.analysis.id = response['analysis']['id'] if response['analysis']['id']
-      response
-      end
-=end
-
     def push
       begin
         @upload_retries ||= 0
@@ -81,7 +62,7 @@ module Dencity
         # Decide if we should fail based on number of retries
         if @upload_retries < 3
 
-          fail 'could not upload'
+          raise 'could not upload'
         else
           # or here: @upload_retries = nil
           return se

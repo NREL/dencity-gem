@@ -1,7 +1,6 @@
 module Dencity
   # Structure methods
   class Structure
-
     include Request
 
     attr_accessor :analysis_id
@@ -10,7 +9,7 @@ module Dencity
     attr_accessor :measure_instances
 
     # initialize
-    def initialize(analysis_id=nil, user_defined_id=nil, path=nil, connection)
+    def initialize(analysis_id = nil, user_defined_id = nil, path = nil, connection)
       @analysis_id = analysis_id
       @user_defined_id = user_defined_id
       @structure = Hashie::Mash.new
@@ -24,7 +23,6 @@ module Dencity
       end
 
       @upload_retries = nil
-
     end
 
     def push
@@ -38,7 +36,7 @@ module Dencity
         # Decide if we should fail based on number of retries
         if @upload_retries < 3
 
-          fail 'could not upload'
+          raise 'could not upload'
         else
           # or here: @upload_retries = nil
           return se
@@ -73,8 +71,7 @@ module Dencity
 
     # upload file
     def upload_file(path, file_name = nil)
-
-      raise 'No Structure ID defined for structure. Can\'t upload file' if @structure.id.nil?
+      fail 'No Structure ID defined for structure. Can\'t upload file' if @structure.id.nil?
 
       file = File.open(path, 'rb')
       the_file = Base64.strict_encode64(file.read)
@@ -89,15 +86,13 @@ module Dencity
       data.structure_id = @structure.id
       data.file_data = file_data
 
-      # todo: redo the post
       push_file('api/related_file', MultiJson.dump(data))
-
     end
 
     # delete an uploaded file
     # if structure_id is nil, will use @structure.id
     def delete_file(file_name)
-      raise 'No Structure ID defined for structure. Can\'t delete file' if @structure.id.nil?
+      fail 'No Structure ID defined for structure. Can\'t delete file' if @structure.id.nil?
 
       data = Hashie::Mash.new
       data.structure_id = @structure.id
@@ -116,9 +111,9 @@ module Dencity
         # Decide if we should fail based on number of retries
         if @upload_retries < 3
           if path.include? 'remove'
-           fail 'could not delete file'
+            raise 'could not delete file'
           else
-            fail 'could not upload file'
+            raise 'could not upload file'
           end
         else
           return se
@@ -133,29 +128,6 @@ module Dencity
       @upload_retries = nil
     end
 
-    # TODO: this method should be removed
-    # upload structure to DEnCity
-    # expects @structure.structure to not be empty unless a path is passed in
-    # will use @analysis.analysis.id if nothing is passed in & @structure.analysis_id is not defined
-    def upload(user_defined_id = nil, analysis_id = nil, path = nil)
-      if path
-        load_from_file(path)
-      end
-
-      # add/modify user_defined_id
-      @user_defined_id = user_defined_id if user_defined_id
-
-      # set analysis_id in preference order: passed-in analysis_id, analysis_id from @analysis var, nil
-      @analysis_id = analysis_id if analysis_id
-
-      # format and post
-      response = push
-      # set structure.id after upload
-      @structure.id = response.id if response.id
-      response
-    end
-
-
     private
 
     # formats structure parameters for posting
@@ -163,7 +135,7 @@ module Dencity
       # generate name/value pairs for structure metadata
       formatted_meta = []
       @structure.each do |k, v|
-        formatted_meta << { name: k, value: v } unless ['id', 'user_defined_id', 'analysis_id'].include?(k)
+        formatted_meta << { name: k, value: v } unless %w(id user_defined_id analysis_id).include?(k)
       end
       new_struct = Hashie::Mash.new
       new_struct.metadata = formatted_meta

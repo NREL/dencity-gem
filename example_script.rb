@@ -79,13 +79,13 @@ puts '********* Upload STRUCTURE *********'
 structure = d.load_structure(analysis.analysis.id, 'testing!', './spec/data/structure.json')
 puts "STRUCTURE: #{structure}"
 begin
-s_response = structure.push
-rescue StandardError => e
-  printf "%-40s %s\n", 'Upload Structure', 'FAIL'
-  puts e
-else
-  printf "%-40s %s\n", 'Upload Structure', 'SUCCESS'
-  puts s_response
+  s_response = structure.push
+  rescue StandardError => e
+    printf "%-40s %s\n", 'Upload Structure', 'FAIL'
+    puts e
+  else
+    printf "%-40s %s\n", 'Upload Structure', 'SUCCESS'
+    puts s_response
 end
 
 puts '******* Upload RELATED FILE *******'
@@ -121,9 +121,6 @@ else
   puts response
 end
 
-puts '******* LOGOUT *******'
-d.logout
-
 puts '********** BULK UPLOAD ***********'
 d.load_structure(analysis.analysis.id, 'testing_bulk_1', './spec/data/structure.json')
 d.load_structure(analysis.analysis.id, 'testing_bulk_2', './spec/data/structure.json')
@@ -139,3 +136,7 @@ else
   printf "%-40s %s\n", 'Upload Structure', 'SUCCESS'
   puts b_response
 end
+
+puts '******* LOGOUT *******'
+d.logout
+

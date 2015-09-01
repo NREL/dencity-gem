@@ -11,7 +11,6 @@ require 'parallel'
 
 # Main module
 module Dencity
-
   # initialize / connect
   def self.connect(options = {})
     Dencity::Client.new(options)

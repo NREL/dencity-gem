@@ -39,7 +39,6 @@ module Dencity
       # array of structures
       @structures = []
       @analysis = nil
-
     end
 
     # for authenticated actions
@@ -64,13 +63,13 @@ module Dencity
     end
 
     # load structure
-    def load_structure(analysis_id=nil, user_defined_id=nil, path=nil)
+    def load_structure(analysis_id = nil, user_defined_id = nil, path = nil)
       @structures << Dencity::Structure.new(analysis_id, user_defined_id, path, @connection)
       @structures.last
     end
 
     # bulk upload structures
-    def bulk_upload_structures(number_of_threads=@default_number_threads)
+    def bulk_upload_structures(number_of_threads = @default_number_threads)
       Parallel.each(@structures, number_of_threads: number_of_threads) do |structure|
         structure.push
       end
@@ -78,7 +77,7 @@ module Dencity
 
     # load analysis
     # this function is needed to pass @connection at least
-    def load_analysis(path=nil)
+    def load_analysis(path = nil)
       @analysis = Dencity::Analysis.new(path, @connection)
     end
 
@@ -139,8 +138,5 @@ module Dencity
       @analysis.analysis = Hashie::Mash.new
       @analysis.measure_definitions = Hashie::Mash.new
     end
-
   end
 end
-
-
