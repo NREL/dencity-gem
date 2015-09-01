@@ -28,74 +28,76 @@ describe Dencity::Client do
     context 'Retrieve Analysis' do
       before(:all) do
         @d = Dencity.connect(@options)
-        @analysis = @d.get('analyses')[0]
+        response = @d.dencity_get('analyses')
+        @analysis = response.data[0]
+        puts "analysis: #{@analysis}"
       end
+
       it 'should get analysis by name and user_id' do
-        ra = @d.retrieve_analysis(@analysis.name, @analysis.user_id)
+        ra = @d.retrieve_analysis_by_name(@analysis.name, @analysis.user_id)
         expect(ra).to be_an_instance_of(Hashie::Mash)
         expect(ra.id).to_not be_nil
       end
 
       it 'should get analysis by id' do
-        a = @d.get_analysis(@analysis.id)
+        a = @d.retrieve_analysis_by_id(@analysis.id)
         expect(a).to be_an_instance_of(Hashie::Mash)
         expect(a.id).to_not be_nil
       end
     end
   end
 
-  it 'should login' do
-    @d = Dencity.connect(@options)
-    login = @d.login('nicholas.long@nrel.gov', 'testing123')
-    expect(login).to be_an_instance_of(Hashie::Mash)
-    expect(login.id).to_not be_nil
-  end
-
   context 'Authenticated' do
+
+    it 'should login' do
+      @d = Dencity.connect(@options)
+      login = @d.login('nicholas.long@nrel.gov', 'testing123')
+      expect(login).to be_an_instance_of(Hashie::Mash)
+      expect(login.id).to_not be_nil
+    end
 
     before(:all) do
       @options.username = 'nicholas.long@nrel.gov'
       @options.password = 'testing123'
       @d = Dencity.connect(@options)
+      $structure = nil
+      $analysis = nil
     end
 
     it 'should upload an analysis' do
       analysis_path = File.join(File.dirname(__FILE__), 'data', 'analysis.json')
-      @d.load_analysis(analysis_path)
+      $analysis = @d.load_analysis(analysis_path)
       # analysis loaded?
-      expect(@d.analysis_loaded?).to be true
+      expect($analysis).to_not be_nil
       # analysis response
-      analysis_response = @d.upload_analysis
+      analysis_response = $analysis.push
       expect(analysis_response).to be_an_instance_of(Hashie::Mash)
       expect(analysis_response.analysis.id).to_not be_nil
-      # analysis variable
-      analysis = @d.analysis
-      expect(analysis.analysis.id).to_not be_nil
+      expect(analysis_response.status.to_s).to start_with '2'
     end
 
     it 'should upload a structure' do
       structure_path = File.join(File.dirname(__FILE__), 'data', 'structure.json')
-      @d.load_structure(structure_path)
+      $structure = @d.load_structure($analysis.analysis.id,'test_user_id', structure_path)
       # structure loaded?
-      expect(@d.structure_loaded?).to be true
+      expect($structure).to_not be_nil
       # structure response
-      structure_response = @d.upload_structure('test_user_id')
+      structure_response = $structure.push
       expect(structure_response).to be_an_instance_of(Hashie::Mash)
       expect(structure_response.id).to_not be_nil
-      # structure variable
-      structure = @d.structure
-      expect(structure.structure.id).to_not be_nil
+      expect(structure_response.status.to_s).to start_with '2'
     end
 
     it 'should upload a file' do
       file_path = File.join(File.dirname(__FILE__), 'data', 'related_File.txt')
-      response = @d.upload_file(file_path, 'test-related-file.txt')
+      response = $structure.upload_file(file_path, 'test-related-file.txt')
       expect(response).to be_an_instance_of(Hashie::Mash)
       expect(response.id).to_not be_nil
+      expect(response.status.to_s).to start_with '2'
     end
 
     it 'should delete an uploaded file' do
-      response = @d.delete_file('test-related-file.txt')
+      response = $structure.delete_file('test-related-file.txt')
       expect(response).to be_an_instance_of(Hashie::Mash)
       expect(response.message).to_not be_nil
     end
