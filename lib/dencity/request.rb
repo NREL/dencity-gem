@@ -33,8 +33,7 @@ module Dencity
         request.headers['Content-Type'] = 'application/json'
 
       end
-      # puts "RESPONSE STATUS: #{response.status}"
-      # puts "RESPONSE BODY: #{response.body}"
+
       return response if raw
       return response.body if no_response_wrapper
       Response.create(response.body, response.status)

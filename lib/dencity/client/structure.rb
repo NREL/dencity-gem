@@ -71,6 +71,68 @@ module Dencity
       @user_defined_id = temp.user_defined_id if temp.user_defined_id
     end
 
+    # upload file
+    def upload_file(path, file_name = nil)
+
+      raise 'No Structure ID defined for structure. Can\'t upload file' if @structure.id.nil?
+
+      file = File.open(path, 'rb')
+      the_file = Base64.strict_encode64(file.read)
+      file.close
+
+      # file_data param
+      file_data = {}
+      file_data['file_name'] = file_name.nil? ? File.basename(path) : file_name
+      file_data['file'] = the_file
+
+      data = Hashie::Mash.new
+      data.structure_id = @structure.id
+      data.file_data = file_data
+
+      # todo: redo the post
+      push_file('api/related_file', MultiJson.dump(data))
+
+    end
+
+    # delete an uploaded file
+    # if structure_id is nil, will use @structure.id
+    def delete_file(file_name)
+      raise 'No Structure ID defined for structure. Can\'t delete file' if @structure.id.nil?
+
+      data = Hashie::Mash.new
+      data.structure_id = @structure.id
+      data.file_name = file_name
+
+      push_file('api/remove_file', MultiJson.dump(data))
+    end
+
+    # push file w/ retry
+    def push_file(path, data)
+      begin
+        @upload_retries ||= 0
+        response = post(path, data)
+        return response if response
+      rescue StandardError => se
+        # Decide if we should fail based on number of retries
+        if @upload_retries < 3
+          if path.include? 'remove'
+           fail 'could not delete file'
+          else
+            fail 'could not upload file'
+          end
+        else
+          return se
+        end
+      end
+    rescue => e
+      @upload_retries += 1
+      sleep 2
+      retry
+    ensure
+      # verify that this is only called if the retry is not triggered
+      @upload_retries = nil
+    end
+
     # TODO: this method should be removed
     # upload structure to DEnCity
     # expects @structure.structure to not be empty unless a path is passed in
@@ -92,6 +154,7 @@ module Dencity
       @structure.id = response.id if response.id
       response
     end
+
 
     private
 

@@ -1,9 +1,7 @@
 require_relative 'request'
-
 require_relative 'client/search'
 require_relative 'client/analysis'
 require_relative 'client/structure'
-require_relative 'client/related_file'
 require_relative '../faraday/raise_http_exception'
 
 module Dencity
@@ -16,7 +14,6 @@ module Dencity
 
     include Request
     include Dencity::Search
-    include Dencity::RelatedFile
 
     # connect to DEnCity (unauthenticated)
     def initialize(options)
@@ -73,7 +70,7 @@ module Dencity
     end
 
     # bulk upload structures
-    def bulk_upload(number_of_threads=@default_number_threads)
+    def bulk_upload_structures(number_of_threads=@default_number_threads)
       Parallel.each(@structures, number_of_threads: number_of_threads) do |structure|
         structure.push
       end
@@ -85,6 +82,26 @@ module Dencity
       @analysis = Dencity::Analysis.new(path, @connection)
     end
 
+    # retrieve analysis
+    # must pass in @connection
+    def retrieve_analysis_by_name(name, user_id)
+      @analysis = Dencity::Analysis.new(nil, @connection)
+      @analysis.retrieve_by_name(name, user_id)
+    end
+
+    # retrieve analysis by ID
+    # must pass in @connection
+    def retrieve_analysis_by_id(id)
+      @analysis = Dencity::Analysis.new(nil, @connection)
+      @analysis.retrieve_by_id(id)
+    end
+
+    # generic GET action to retrieve from DEnCity
+    # example paths:  'analyses', 'structures/<structure_id>'
+    def dencity_get(path)
+      get(path)
+    end
+
     private
 
     def connect(raw = false)
@@ -93,7 +110,7 @@ module Dencity
       Faraday::Connection.new(options) do |c|
         c.use FaradayMiddleware::Mashify unless raw
         # basic auth
-        puts c.basic_auth(@options.username, @options.password) unless @options.username.nil? || @options.password.nil?
+        c.basic_auth(@options.username, @options.password) unless @options.username.nil? || @options.password.nil?
         c.use FaradayMiddleware::RaiseHttpException
         c.response :json, content_type: /\bjson$/
         c.response :logger if @logging
@@ -126,35 +143,4 @@ module Dencity
   end
 end
 
-=begin
-
-d = Dencity::Client.new
-d.structure.from_json(a_json)
-
-d.structure = {Soemthigntsutelkjasdflkjasldfj}
-d.structure.anlaysis_id = "something else"
-d.structure.push
-
-
-
-
-s = d.add_structure_from_file(a)
-s.push
-s = d.add_structure_from_file(b)
-
-
-
-d.structures[8] = "lasdkjflaskdjf"
-
-d.structures.each do |s|
-  s.analysis_id = 'alskdjf'
-end
-
-
-d.bulk_upload_structures
-
-#
-d.structures.bulk_upload
-
-=end
 

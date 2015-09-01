@@ -25,14 +25,14 @@ module Dencity
     end
 
     # get analysis by id
-    def get_analysis(id)
+    def retrieve_by_id(id)
       response = get("api/analyses/#{id}")
       @analysis = Hashie::Mash.new(response) unless response.error?
       response
     end
 
     # get analysis by name and user_id
-    def retrieve_analysis(name, user_id)
+    def retrieve_by_name(name, user_id)
       data = { name: name, user_id: user_id }
       response = get('api/retrieve_analysis', data)
       @analysis = Hashie::Mash.new(response) unless response.error?
@@ -53,6 +53,7 @@ module Dencity
       @measure_definitions = temp.measure_definitions ? temp.measure_definitions : Hashie::Mash.new
     end
 
+=begin
     # TODO: this method should be removed
     # upload analysis
     # returns analysis_id
@@ -66,7 +67,8 @@ module Dencity
       # set analysis.id after upload
       @analysis.analysis.id = response['analysis']['id'] if response['analysis']['id']
       response
-    end
+      end
+=end
 
     def push
       begin

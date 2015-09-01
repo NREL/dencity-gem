@@ -7,6 +7,7 @@ require 'multi_json'
 require 'hashie'
 require 'faraday'
 require 'faraday_middleware'
+require 'parallel'
 
 # Main module
 module Dencity

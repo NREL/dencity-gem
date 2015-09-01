@@ -1,10 +1,15 @@
-# Document me!
+# Response Format
 
 module Dencity
   # Response module
   module Response
     def self.create(response_hash, status)
-      data = response_hash.data.dup rescue response_hash
+      if response_hash.class.name == 'Array'
+        data = Hashie::Mash.new
+        data.data = response_hash
+      else
+        data = response_hash.dup rescue response_hash
+      end
       data.extend(self)
       data.status = status
       data

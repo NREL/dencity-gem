@@ -5,8 +5,7 @@ module Dencity
     # return_only: array of metadata to return
     # If blank, all metadata will be returned
     # for iterating over results set (100 per page)
-    def search(\
-      filters = [{ name: 'building_type', value: 'Office', operator: '=' }], return_only = [], page = 0)
+    def search(filters = [{ name: 'building_type', value: 'Office', operator: '=' }], return_only = [], page = 0)
       # must have 1 filter or search won't work
       object = {}
       object['filters'] = filters
