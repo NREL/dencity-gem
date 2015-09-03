@@ -78,7 +78,7 @@ describe Dencity::Client do
 
     it 'should upload a structure' do
       structure_path = File.join(File.dirname(__FILE__), 'data', 'structure.json')
-      $structure = @d.load_structure($analysis.analysis.id,'test_user_id', structure_path)
+      $structure = @d.load_structure($analysis.analysis.id, 'test_user_id', structure_path)
       # structure loaded?
       expect($structure).to_not be_nil
       # structure response

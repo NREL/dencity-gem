@@ -2,6 +2,17 @@ require 'dencity'
 
 d = Dencity.connect(host_name: 'http://localhost:3000/')
 
+# to login using stored credentials:
+# begin
+#   login = d.login
+# rescue StandardError => e
+#   printf "%-40s %s\n", 'Login', 'FAIL'
+#   puts e
+# else
+#   printf "%-40s %s\n", 'Login', 'SUCCESS'
+#   puts login
+# end
+
 puts '****** SEARCH ********'
 filters = []
 filters << { name: 'building_area', value: 2737.26, operator: 'lt' }
@@ -139,4 +150,3 @@ end
 
 puts '******* LOGOUT *******'
 d.logout
-

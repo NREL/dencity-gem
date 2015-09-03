@@ -4,6 +4,9 @@ require_relative 'client/analysis'
 require_relative 'client/structure'
 require_relative '../faraday/raise_http_exception'
 
+require 'FileUtils'
+require 'yaml'
+
 module Dencity
   # API Client class
   class Client
@@ -16,36 +19,59 @@ module Dencity
     include Dencity::Search
 
     # connect to DEnCity (unauthenticated)
-    def initialize(options)
+    def initialize(options = {})
       puts 'Initializing...'
       defaults = {
         username: nil,
         password: nil,
-        # access_token: nil,
-        host_name: 'https://dencity.org/',
+        host_name: 'https://dencity.org',
         user_agent: "DEnCity Ruby Client #{Dencity::VERSION}".freeze,
-        # cookie: nil,
         logging: nil
       }
+
       @options = Hashie::Mash.new(defaults.merge(options))
-      puts "CONNECTING TO: #{@options.host_name}, USER: #{@options.username}"
       # connection to site
       @connection = connect
 
       @default_number_threads = 4
 
       # initialize analysis and structures
-      initialize_analysis
       # array of structures
       @structures = []
       @analysis = nil
     end
 
     # for authenticated actions
-    def login(username, password)
-      # TODO: get these values from ENV or config.yml
-      @options.username = username
-      @options.password = password
+    def login(username = nil, password = nil)
+      # check config.yml
+      if !username.nil? && !password.nil?
+        @options.username = username
+        @options.password = password
+      else
+        # load login info from config file
+        config_path = File.expand_path('~') + '/.dencity'
+        config_name = 'config.yml'
+        if File.exist?(config_path + '/' + config_name)
+          puts "loading config settings from #{config_path + '/' + config_name}"
+
+          config = YAML.load_file(config_path + '/' + config_name)
+          puts "HEY! #{Hashie::Mash.new(config).inspect}"
+          puts "CONFIG: #{config.inspect}"
+          @options.username = config[:username]
+          @options.password = config[:password]
+          @options.host_name = config[:host_name]
+
+        else
+          # location of template file
+          FileUtils.mkdir_p(config_path)
+          puts default_yaml
+          File.open(config_path + '/' + config_name, 'w') do |file|
+            file << default_yaml.to_yaml
+          end
+          fail "******** Please fill in user credentials in #{config_path}/#{config_name} file.  DO NOT COMMIT THIS FILE. **********"
+        end
+
+      end
 
       @connection = connect
       post('api/login')
@@ -105,7 +131,7 @@ module Dencity
 
     def connect(raw = false)
       options = set_options
-
+      puts "CONNECTING TO: #{@options.host_name}, USER: #{@options.username}"
       Faraday::Connection.new(options) do |c|
         c.use FaradayMiddleware::Mashify unless raw
         # basic auth
@@ -129,14 +155,8 @@ module Dencity
       }
     end
 
-    # initialize analysis variable
-    def initialize_analysis
-      # analysis hash contains analysis and measure_definitions
-      # user_defined_id is set inside the analysis.analysis hash
-      # once uploaded, analysis.analysis contains an id, which is used to upload structures
-      @analysis = Hashie::Mash.new
-      @analysis.analysis = Hashie::Mash.new
-      @analysis.measure_definitions = Hashie::Mash.new
+    def default_yaml
+      settings = { host_name: 'http://localhost:3000', username: 'ENTER_DENCITY_USERNAME', password: 'ENTER_DENCITY_PASSWORD' }
     end
   end
 end

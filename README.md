@@ -26,27 +26,32 @@ Or install it yourself as:
 Without authentication:
 
 ```ruby
-d = Dencity.connect
+dencity_client = Dencity.connect
 ```
 
 On a different host (for development purposes):
 
 ```ruby
-d = Dencity.connect({host_name: <host_name>})
+dencity_client = Dencity.connect({host_name: <host_name>})
 ```
 
 With authentication:
 ```ruby
-d = Dencity.connect({username: <username>, password: <password>})
+dencity_client = Dencity.connect({username: <username>, password: <password>})
 ```
 
 To authenticate an existing connection:
 ```ruby
-d.login(<username>, <password>)
+dencity_client.login(<username>, <password>)
+```
+
+To authenticate using stored credentials in ~/.dencity/config.yml, call the login method without arguments. The gem will generate the config.yml for you to fill out.
+```ruby
+dencity_client.login
 ```
 
 ### Search
-The search method acccepts 3 optional parameters: *filters*, *return_only*, and *page*. *filters* is used to narrow the search results.  The format is an array of hashes containing 3 keys: name, value, and operator. The list of operators is as follows:
+The search method accepts 3 optional parameters: *filters*, *return_only*, and *page*. *filters* is used to narrow the search results.  The format is an array of hashes containing 3 keys: name, value, and operator. The list of operators is as follows:
 - =  -  *Equal to* operator accepts string or number values.
 - ne -  *Not equal to* operator accepts string or number values.
 - lt -  *Less than* operator accepts number values.
@@ -70,7 +75,7 @@ filters << { name: 'building_area', value: 2800, operator: 'lt' }
 filters << { name: 'building_type', value: ['Community Center'], operator: 'in' }
 return_only = ['related_files']
 page = 3
-results = d.search(filters, return_only, page)
+results = dencity_client.search(filters, return_only, page)
 ```
 
 ### Retrieve an Analysis
@@ -78,25 +83,25 @@ There are two methods of retrieving an analysis:  by ID, or by name + userID.
 
 Retrieve an analysis by ID:
 ```ruby
-analysis = d.get_analysis(<id>)
+analysis = dencity_client.retrieve_analysis_by_id(<id>)
 ```
 Retrieve by analysis name and userID:
 ```ruby
-analysis = d.retrieve_analysis(<analysis_name>, <user_id>)
+analysis = dencity_client.retrieve_analysis_by_name(<analysis_name>, <user_id>)
 ```
 You have access to your own user_id from the response object returned once you login to DEnCity, or from your account page on DEnCity.org.
 
 ### Upload an Analysis
 First load an analysis from a json file, then upload to DEnCity.org.
 ```ruby
-d.load_analysis(<json_file_path>)
-analysis_response = d.upload_analysis
+analysis = dencity_client.load_analysis(<json_file_path>)
+analysis_response = analysis.push
 ```
 To catch the response and ensure that the analysis was uploaded to DEnCity.org correctly, you may want to use a begin-end block:
 ```ruby
-d.load_analysis(<json_file_path>)
+analysis = dencity_client.load_analysis(<json_file_path>)
 begin
-  analysis_response = d.upload_analysis
+  analysis_response = analysis.push
 rescue StandardError => e
   printf "%-40s %s\n", 'Upload Analysis', 'FAIL'
   puts e
@@ -105,55 +110,48 @@ else
   puts analysis_response
 end
 ```
-If you do not need to modify the analysis before upload, you can pass in the JSON file path directly:
-```ruby
-d.upload_analysis(<json_file_path>)
-```
 When uploading an analysis, the combination of user_id and user_defined_id will be checked.
 If an analysis with the same user_id and user_defined_id already exists on DEnCity.org, it will be updated; otherwise, a new analysis will be created.
 
 ### Upload a Structure
 To upload a structure, you will need an analysis_id.  You can also specify a user_defined_id to identify your structure for future retrieving.
 ```ruby
-d.load_structure(<json_file_path>)
-structure_response = d.upload_structure(<user_defined_id>, <analysis_id>)
-```
-If no analysis_id is specified in the *upload_structure* call, the gem will attempt to use the analysis_id stored in the @analysis client variable (which is set automatically by a previous analysis upload).
-
-If you do not need to modify the structure before upload, you can pass in the path to the JSON file directly:
-```ruby
-structure_response = d.upload_structure(<user_defined_id>, <analysis_id>, <structure_file_path>)
+structure = dencity_client.load_structure(<analysis_id>, <user_defined_id> <json_file_path>)
+structure_response = structure.push
 ```
 When uploading a structure, the combination of user_id and user_defined_id will be checked.
 If a structure with the same user_id and user_defined_id already exists on DEnCity.org, it will be updated; otherwise, a new structure will be created.
 
+### Bulk Structures Upload
+Each time a structure is loaded, it is appended to the structures array defined on the Dencity Client: ```dencity_client.structures```.  You can bulk upload all structures to DenCity.org:
+```ruby
+dencity_client.bulk_upload_structures
+```
 
 ### Upload a file
 Files can be attached to an uploaded structure.  You will need to pass in the filepath as well as the desired filename on DEnCity.org.  If no filename is specified, the file's current name will be used.
 
 ```ruby
- response = d.upload_file(<file_path>, <file_name>, <structure_id>)
+ response = structure.upload_file(<file_path>, <file_name>)
 ```
-If no structure_id is passed in, the structure_id of stored in ``` d.structure``` will be used (which would be set automatically by a previous structure upload).
 
 ### Delete an uploaded file
 Uploaded files can also be deleted from DEncity.org:
 ```ruby
- response = d.delete_file(<file_name>, <structure_id>)
+ response = structure.delete_file(<file_name>)
  ```
- If no structure_id is passed in, the structure_id of stored in ``` d.structure``` will be used (which would be set automatically by a previous structure upload).
 
 ### Additional Examples
 
-You can also do simple GETs using the get method.
+You can also do simple GETs using the dencity_get method.
 
 Get all analyses:
 ```ruby
-analyses = d.get('analyses')
+response = dencity_client.dencity_get('analyses')
 ```
 Get structure by ID:
 ```ruby
-structure = d.get('structures/<structure_id>')
+response = dencity_client.dencity_get('structures/<structure_id>')
 ```
 
 The file example_script.rb contains many usage examples.
