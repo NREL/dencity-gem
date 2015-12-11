@@ -56,7 +56,7 @@ module Dencity
         @upload_retries ||= 0
 
         response = post('api/analysis', format_analysis)
-        @analysis.id = response.analysis.id if response.analysis.id
+        @analysis.id = response.analysis.id if (response.analysis && response.analysis.id)
         return response if response
       rescue StandardError => se
         # Decide if we should fail based on number of retries
