@@ -4,7 +4,7 @@ require_relative 'client/analysis'
 require_relative 'client/structure'
 require_relative '../faraday/raise_http_exception'
 
-require 'FileUtils'
+require 'fileutils'
 require 'yaml'
 
 module Dencity
