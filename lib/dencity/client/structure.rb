@@ -65,8 +65,10 @@ module Dencity
       @structure =  temp.structure ? temp.structure : Hashie::Mash.new
       @measure_instances = temp.measure_instances ? temp.measure_instances : Hashie::Mash.new
       # these could be set in the file
-      @analysis_id = temp.analysis_id if temp.analysis_id
-      @user_defined_id = temp.user_defined_id if temp.user_defined_id
+      @analysis_id = temp.structure.analysis_id if temp.structure.analysis_id
+      @user_defined_id = temp.structure.user_defined_id if temp.structure.user_defined_id
+
+      return true
     end
 
     # upload file
